@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Complete Your Payment — KisanCard{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1rem; max-width:700px">
+    <div class="success-card" style="text-align: center;">
+        <div class="success-icon-wrap" style="background-color: var(--accent); color: white;">
+            <div class="success-icon">⏳</div>
+        </div>
+        <h1>Order Initiated!</h1>
+        <p class="success-subtitle">Thank you, <strong>{{ order['name'] }}</strong>! Please complete your payment to finalize the order.</p>
+
+        <!-- UPI / QR Payment Block -->
+        <div style="background:var(--bg-light); border:2px dashed var(--primary); border-radius:12px; padding:2rem; margin:2rem 0;">
+            <h3 style="margin-bottom:1rem; color:var(--primary);">Step 1: Pay via UPI</h3>
+            
+            <div style="display:flex; justify-content:center; margin-bottom:1rem;">
+                <!-- Dynamic UPI QR Code generated via API -->
+                <div style="background:white; border:1px solid #ccc; padding:10px; border-radius:8px; display:inline-block;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3D70522500000%40axl%26pn%3DKisanCard%26am%3D{{ order['total']|int }}%26cu%3DINR" alt="Pay via UPI" style="width:150px; height:150px;">
+                </div>
+            </div>
+            
+            <p style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">UPI ID: <span style="background:white; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid #ddd; user-select:all;">70522500000@axl</span></p>
+            <h2 style="color:var(--accent); margin:1rem 0;">Total to Pay: ₹{{ order['total']|int }}</h2>
+            
+            <p style="color:var(--text-muted); font-size:0.9rem;">
+                <i class="fas fa-camera"></i> <strong>Important:</strong> After paying, please take a screenshot of your successful transaction.
+            </p>
+        </div>
+
+        <div class="order-details-box" style="text-align:left;">
+            <h4 style="margin-bottom:1rem; border-bottom:1px solid #eee; padding-bottom:0.5rem;">Order Summary (#{{ order['id'] }})</h4>
+            
+            {% set subtotal_ns = namespace(value=0) %}
+            {% for item in items %}
+            {% set subtotal_ns.value = subtotal_ns.value + (item['price'] * item['quantity']) %}
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                <span>{{ item['quantity'] }}x {{ item['product_name'] }}</span>
+                <span>₹{{ (item['price'] * item['quantity'])|int }}</span>
+            </div>
+            {% endfor %}
+            
+            {% set delivery_fee = order['total'] - subtotal_ns.value %}
+            {% if delivery_fee > 0 %}
+            <div style="display:flex; justify-content:space-between; margin-top:0.5rem; color:var(--text-muted);">
+                <span>Delivery Charge</span>
+                <span>₹{{ delivery_fee|int }}</span>
+            </div>
+            {% else %}
+            <div style="display:flex; justify-content:space-between; margin-top:0.5rem; color:green;">
+                <span>Delivery Charge</span>
+                <span>FREE</span>
+            </div>
+            {% endif %}
+
+            <div style="display:flex; justify-content:space-between; margin-top:1rem; font-weight:bold; border-top:1px solid #eee; padding-top:0.5rem;">
+                <span>Grand Total</span>
+                <span>₹{{ order['total']|int }}</span>
+            </div>
+        </div>
+
+        <!-- WhatsApp Integration Logic -->
+        {% set whatsapp_number = "917408956686" %}
+        
+        {% set item_strings = [] %}
+        {% for item in items %}
+            {% set _ = item_strings.append(item['quantity'] ~ "x " ~ item['product_name'] ~ " (Rs " ~ (item['price'] * item['quantity'])|int ~ ")") %}
+        {% endfor %}
+        {% set item_list_text = item_strings | join('\n') %}
+
+        {% set whatsapp_msg = "Hello! I would like to place an order.\n\nOrder Details (ID: #" ~ order['id'] ~ "):\n" ~ item_list_text ~ "\nDelivery Charge: Rs " ~ delivery_fee|int ~ "\n\nTotal Amount: Rs " ~ order['total']|int ~ "\nCustomer Name: " ~ order['name'] ~ "\nDeliver to: " ~ order['address'] ~ ", " ~ order['city'] ~ " - " ~ order['pincode'] ~ "\n\nI am attaching the payment screenshot below." %}
+
+        <!-- Send to WhatsApp Button -->
+        <div style="margin-top: 2rem;">
+            <h3 style="margin-bottom:1rem; color:var(--primary);">Step 2: Finalize Order</h3>
+            <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_msg | urlencode }}" target="_blank" class="btn btn-lg" style="background-color:#25D366; color:white; width:100%; border:none; box-shadow:0 4px 6px rgba(37,211,102,0.3);">
+                <i class="fab fa-whatsapp" style="font-size:1.2rem;"></i> Finalize Order on WhatsApp
+            </a>
+            <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">
+                Clicking this will automatically open a chat with us pre-filled with your order details. Remember to press 'Send' and attach your screenshot!
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

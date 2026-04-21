@@ -1,0 +1,7 @@
+Flask==3.0.3
+python-dotenv==1.0.1
+certifi==2024.7.4
+PyMySQL==1.1.1
+Werkzeug==3.0.3
+Flask-MySQLdb==2.3.8
+gunicorn==21.2.0

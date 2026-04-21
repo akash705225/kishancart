@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — KisanCard{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            <span>🌿</span> Admin Panel
+        </div>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-link {{ 'active' if request.endpoint == 'admin_dashboard' }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_products') }}" class="admin-link {{ 'active' if 'product' in request.endpoint }}">
+                <i class="fas fa-leaf"></i> Products
+            </a>
+            <a href="{{ url_for('admin_add_product') }}" class="admin-link">
+                <i class="fas fa-plus-circle"></i> Add Product
+            </a>
+            <a href="{{ url_for('admin_orders') }}" class="admin-link {{ 'active' if 'order' in request.endpoint }}">
+                <i class="fas fa-box"></i> Orders
+            </a>
+            <a href="{{ url_for('admin_delivery_boys') }}" class="admin-link">
+                <i class="fas fa-motorcycle"></i> Delivery Boys
+            </a>
+            <a href="{{ url_for('admin_ads') }}" class="admin-link {{ 'active' if 'ads' in request.endpoint }}">
+                <i class="fas fa-images"></i> Footer Ads
+            </a>
+            {% if session.get('role') == 'super_admin' %}
+            <a href="{{ url_for('admin_sub_admins') }}" class="admin-link">
+                <i class="fas fa-users-cog"></i> Sub Admins
+            </a>
+            {% endif %}
+            <hr class="admin-nav-hr">
+            <a href="{{ url_for('home') }}" class="admin-link">
+                <i class="fas fa-store"></i> View Store
+            </a>
+            <a href="{{ url_for('logout') }}" class="admin-link admin-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Admin Content -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+            <span class="admin-greeting">Welcome, Admin 👋</span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card green">
+                <i class="fas fa-leaf"></i>
+                <div><span>{{ stats['total_products'] }}</span><p>Total Products</p></div>
+            </div>
+            <div class="admin-stat-card blue">
+                <i class="fas fa-users"></i>
+                <div><span>{{ stats['total_users'] }}</span><p>Customers</p></div>
+            </div>
+            <div class="admin-stat-card orange">
+                <i class="fas fa-box"></i>
+                <div><span>{{ stats['total_orders'] }}</span><p>Total Orders</p></div>
+            </div>
+            <div class="admin-stat-card purple">
+                <i class="fas fa-rupee-sign"></i>
+                <div><span>₹{{ stats['total_revenue']|int }}</span><p>Revenue</p></div>
+            </div>
+            <div class="admin-stat-card red">
+                <i class="fas fa-clock"></i>
+                <div><span>{{ stats['pending_orders'] }}</span><p>Pending Orders</p></div>
+            </div>
+            <div class="admin-stat-card teal">
+                <i class="fas fa-envelope"></i>
+                <div><span>{{ stats['messages'] }}</span><p>Messages</p></div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="{{ url_for('admin_add_product') }}" class="quick-action-btn">
+                    <i class="fas fa-plus-circle"></i> Add New Plant
+                </a>
+                <a href="{{ url_for('admin_products') }}" class="quick-action-btn">
+                    <i class="fas fa-edit"></i> Manage Products
+                </a>
+                <a href="{{ url_for('admin_orders') }}" class="quick-action-btn">
+                    <i class="fas fa-box-open"></i> Manage Orders
+                </a>
+                <a href="{{ url_for('shop') }}" class="quick-action-btn" target="_blank">
+                    <i class="fas fa-store"></i> View Shop
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="admin-table-card">
+            <h3>📦 Recent Orders</h3>
+            {% if recent_orders %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>#{{ order['id'] }}</td>
+                    <td>{{ order['name'] }} <small>({{ order['username'] }})</small></td>
+                    <td>₹{{ order['total']|int }}</td>
+                    <td><span class="status-badge status-{{ order['status']|lower }}">{{ order['status'] }}</span></td>
+                    <td>{{ (order['created_at']|string)[:10] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ url_for('admin_orders') }}" class="admin-link-btn">View All Orders →</a>
+            {% else %}
+            <p class="empty-text">No orders yet.</p>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

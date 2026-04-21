@@ -1,0 +1,61 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and OS configurations
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Database files
+*.sqlite3
+*.db
+!models.py
+
+# User Uploaded Static Files (preventing bloat and pushing server files)
+static/uploads/
+static/images/plants/default.jpg  # Unless you want the default image in the repo
+# Instead of ignoring the whole images folder, just ignore uploads
+
+# PyInstaller / Build Artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments specific
+.Python
+
+# Pytest / Coverage
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/

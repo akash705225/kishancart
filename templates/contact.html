@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Contact Us — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>📬 Get In Touch</h1>
+        <p>We'd love to hear from you — questions, feedback, or just a hello!</p>
+    </div>
+</div>
+
+<div class="container contact-container">
+    <div class="contact-grid">
+        <!-- Contact Form -->
+        <div class="contact-form-col">
+            <div class="form-card">
+                <h3>Send Us a Message</h3>
+                <form method="POST" action="{{ url_for('contact') }}" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name"><i class="fas fa-user"></i> Your Name *</label>
+                            <input type="text" id="name" name="name" placeholder="Full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email"><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject"><i class="fas fa-tag"></i> Subject</label>
+                        <input type="text" id="subject" name="subject" placeholder="What's it about?">
+                    </div>
+                    <div class="form-group">
+                        <label for="message"><i class="fas fa-comment"></i> Message *</label>
+                        <textarea id="message" name="message" rows="6" placeholder="Write your message here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-full">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="contact-info-col">
+            <div class="contact-info-card">
+                <h3>Contact Information</h3>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <strong>Our Address</strong>
+                        <p>42 Green Garden Street<br>Andheri West, Mumbai — 400 058</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <strong>Phone</strong>
+                        <p>+91 7408956686</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <strong>Email</strong>
+                        <p>skykumar7052@gmail.com</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <strong>Working Hours</strong>
+                        <p>Monday – Saturday: 9 AM – 8 PM<br>Sunday: 10 AM – 5 PM</p>
+                    </div>
+                </div>
+                <div class="contact-social">
+                    <a href="https://www.facebook.com/profile.php?id=61573249506019"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.linkedin.com/in/akash-kumar-9a11ab296?utm_source=share_via&utm_content=profile&utm_medium=member_android"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="faq-card">
+                <h4>❓ Common Questions</h4>
+                <details class="faq-item"><summary>How long does delivery take?</summary><p>Typically 2–5 business days depending on your location.</p></details>
+                <details class="faq-item"><summary>What if my plant arrives damaged?</summary><p>Contact us within 48 hours with a photo. We'll replace it for free!</p></details>
+                <details class="faq-item"><summary>Do you have a loyalty program?</summary><p>Yes! Every purchase earns points. Watch for our membership launch.</p></details>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

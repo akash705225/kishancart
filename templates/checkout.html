@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Checkout — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>💳 Checkout</h1>
+    </div>
+</div>
+
+<div class="container checkout-container">
+    <div class="checkout-grid">
+        <!-- Shipping Form -->
+        <div class="checkout-form-col">
+            <form method="POST" action="{{ url_for('checkout') }}" id="checkoutForm">
+                <div class="form-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Shipping Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" placeholder="Your full name" required
+                                   value="{{ session.get('username', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" required
+                               pattern="[0-9]{10}">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Street Address *</label>
+                        <textarea id="address" name="address" placeholder="House/Flat no., Street, Area..." required rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" placeholder="Your city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode">PIN Code *</label>
+                            <input type="text" id="pincode" name="pincode" placeholder="6-digit PIN" required
+                                   pattern="[0-9]{6}" maxlength="6">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
+                    <div class="payment-options">
+                        <label class="payment-option active" id="codLabel">
+                            <input type="radio" name="payment" value="COD" checked onchange="selectPayment(this)">
+                            <span class="payment-icon">💵</span>
+                            <div>
+                                <strong>Cash on Delivery</strong>
+                                <small>Pay when your plants arrive</small>
+                            </div>
+                        </label>
+                        <label class="payment-option" id="upiLabel">
+                            <input type="radio" name="payment" value="UPI" onchange="selectPayment(this)">
+                            <span class="payment-icon">📱</span>
+                            <div>
+                                <strong>UPI Payment</strong>
+                                <small>GPay, PhonePe, Paytm</small>
+                            </div>
+                        </label>
+                        <label class="payment-option" id="cardLabel">
+                            <input type="radio" name="payment" value="Card" onchange="selectPayment(this)">
+                            <span class="payment-icon">💳</span>
+                            <div>
+                                <strong>Credit / Debit Card</strong>
+                                <small>Visa, Mastercard, RuPay</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-full" id="placeOrderBtn">
+                    <i class="fas fa-leaf"></i> Place Order — ₹{{ (total + (0 if total >= 999 else 99))|int }}
+                </button>
+                <p class="checkout-secure"><i class="fas fa-lock"></i> This is a secure, encrypted transaction</p>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="checkout-summary-col">
+            <div class="summary-card sticky-summary">
+                <h3>🧾 Your Order</h3>
+                {% for pid, item in cart.items() %}
+                {% set item_price = item['sale_price'] if item['sale_price'] and item['sale_price'] > 0 else item['price'] %}
+                <div class="order-item-row">
+                    <img src="{{ url_for('static', filename='images/plants/' + item['image']) }}"
+                         alt="{{ item['name'] }}"
+                         onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    <div class="order-item-info">
+                        <strong>{{ item['name'] }}</strong>
+                        <span>× {{ item['qty'] }}</span>
+                    </div>
+                    <span class="order-item-price">₹{{ (item_price * item['qty'])|int }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="summary-row">
+                    <span>Items Subtotal</span>
+                    <span>₹{{ total }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>{{ 'FREE' if total >= 999 else '₹99' }}</span>
+                </div>
+                <div class="summary-total">
+                    <span>Grand Total</span>
+                    <span>₹{{ (total + (0 if total >= 999 else 99))|int }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function selectPayment(input) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+    input.closest('.payment-option').classList.add('active');
+}
+document.getElementById('checkoutForm').addEventListener('submit', function() {
+    const btn = document.getElementById('placeOrderBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}

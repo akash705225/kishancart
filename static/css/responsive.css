@@ -1,0 +1,177 @@
+/* ═══════ RESPONSIVE MOBILE FIXES ═══════ */
+
+/* Tablets and below */
+@media (max-width: 900px) {
+    .bighaat-header-inner {
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 0.5rem;
+    }
+    .bighaat-search-box {
+        width: 100%;
+        max-width: none;
+    }
+    .bighaat-actions {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 0.5rem;
+    }
+    .bighaat-category-nav ul {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 1.5rem;
+        padding: 0.5rem 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .bighaat-category-nav ul::-webkit-scrollbar { display: none; }
+}
+
+/* Mobile Phones (sub-500px) */
+@media (max-width: 500px) {
+    /* Compress Top Utility Bar */
+    .bighaat-top-bar {
+        font-size: 0.75rem;    
+        padding: 0.5rem;
+    }
+    .bighaat-top-bar .container {
+        justify-content: center !important;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+    }
+    .bighaat-top-bar a { margin-left: 0; }
+
+    /* Fix scrolling text overflow */
+    .top-news-banner {
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    /* Force 1-Column Layout for Product Cards */
+    .products-grid, .shop-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    /* Fix Hero section layout so it doesn't push features off-screen */
+    .hero-container {
+        flex-direction: column;
+        gap: 2rem;
+        text-align: center;
+    }
+    .hero-text h1 {
+        font-size: 2.2rem;
+    }
+    .hero-btns {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .hero-visual {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        overflow: hidden; /* Prevent floating badges from scrolling the viewport */
+        padding: 1rem 0;
+    }
+    .hero-circle {
+        width: 250px !important;
+        height: 250px !important;
+    }
+    .hero-plant-emoji {
+        font-size: 6rem !important;
+    }
+    .floating-badge {
+        font-size: 0.75rem !important;
+        padding: 0.3rem 0.6rem !important;
+        white-space: nowrap;
+    }
+    /* Reposition badges to fit tightly around smaller circle */
+    .badge-1 { top: 5% !important; right: 0 !important; }
+    .badge-2 { bottom: 15% !important; left: 0 !important; }
+    .badge-3 { bottom: 0% !important; right: 10px !important; }
+
+    /* Features stat blocks scale down cleanly */
+    .hero-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    /* Category circles shrink slightly */
+    .bighaat-circle-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    .bighaat-categories-grid {
+        gap: 1rem;
+    }
+
+    /* Ensure product image doesn't collapse horizontally if broken */
+    .product-img-wrap img {
+        height: 250px !important;
+        width: 100% !important;
+        background-color: var(--bg-light); /* Fallback color for missing images */
+    }
+
+    /* Button stacking */
+    .shop-card-btns > form > div {
+        flex-direction: row; 
+    }
+}
+
+/* ═══════ ADMIN & DELIVERY MOBILE RESPONSIVENESS ═══════ */
+@media (max-width: 900px) {
+    /* Admin Dashboards */
+    .admin-container {
+        flex-direction: column !important;
+        display: flex;
+    }
+    .admin-sidebar {
+        width: 100%;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 0.5rem;
+    }
+    .admin-nav {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .admin-nav .admin-nav-hr {
+        display: none;
+    }
+    .admin-link {
+        margin-bottom: 0;
+        padding: 0.6rem 1rem;
+        flex-shrink: 0;
+    }
+    /* Wrap tables to scroll sideways if overflowing */
+    .admin-table-card {
+        overflow-x: auto;
+    }
+    .admin-table {
+        min-width: 600px; /* Force minimum width to trigger elegant scroll instead of crushing columns */
+    }
+
+    /* Sub-Admin grids */
+    .admin-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+}
+
+/* Mobile Fixes for Cart and Checkout */
+@media (max-width: 768px) {
+    .cart-grid, .checkout-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .cart-header-row { display: none; }
+    .cart-item { grid-template-columns: 1fr; gap: 1rem; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; position: relative; }
+    .cart-item-product { flex-direction: column; text-align: center; }
+    .cart-remove { position: absolute; top: 10px; right: 10px; }
+    .cart-actions { flex-direction: column; gap: 1rem; }
+    .form-row { grid-template-columns: 1fr; gap: 1rem; }
+}

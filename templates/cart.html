@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🛒 Shopping Cart</h1>
+        <p>{{ cart|length }} item(s) in your cart</p>
+    </div>
+</div>
+
+<div class="container cart-container">
+    {% if cart %}
+    <form method="POST" action="{{ url_for('update_cart') }}" class="cart-form">
+    <div class="cart-grid">
+        <!-- Cart Items -->
+        <div class="cart-items">
+            <div class="cart-header-row">
+                <span>Product</span>
+                <span>Price</span>
+                <span>Qty</span>
+                <span>Subtotal</span>
+                <span></span>
+            </div>
+
+            {% for pid, item in cart.items() %}
+            {% set item_price = item['sale_price'] if item['sale_price'] and item['sale_price'] > 0 else item['price'] %}
+            <div class="cart-item">
+                <div class="cart-item-product">
+                    <img src="{{ url_for('static', filename='images/plants/' + item['image']) }}"
+                         alt="{{ item['name'] }}"
+                         onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    <div class="cart-item-info">
+                        <h4>{{ item['name'] }}</h4>
+                        {% if item['sale_price'] and item['sale_price'] > 0 %}
+                        <span class="cart-badge-sale">SALE</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="cart-price">₹{{ item_price|int }}</span>
+                <div class="cart-qty">
+                    <button type="button" onclick="updateQty('{{ pid }}', -1)">−</button>
+                    <input type="number" name="qty_{{ pid }}" id="qty_{{ pid }}" value="{{ item['qty'] }}" min="0" max="{{ item['stock'] }}" class="cart-qty-input" onchange="this.form.submit()">
+                    <button type="button" onclick="updateQty('{{ pid }}', 1)">+</button>
+                </div>
+                <span class="cart-subtotal">₹{{ (item_price * item['qty'])|int }}</span>
+                <a href="{{ url_for('remove_from_cart', product_id=item['id']) }}" class="cart-remove" title="Remove">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </div>
+            {% endfor %}
+
+            <div class="cart-actions">
+                <a href="{{ url_for('shop') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+                <button type="submit" class="btn btn-secondary">🔄 Update Cart</button>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="cart-summary">
+            <div class="summary-card">
+                <h3>📋 Order Summary</h3>
+                <div class="summary-row">
+                    <span>Subtotal ({{ cart|length }} items)</span>
+                    <span>₹{{ total }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery</span>
+                    <span class="{{ 'text-success' if total >= 999 else '' }}">
+                        {{ 'FREE 🎉' if total >= 999 else '₹99' }}
+                    </span>
+                </div>
+                {% if total < 999 %}
+                <div class="free-ship-msg">
+                    Add ₹{{ (999 - total)|int }} more for FREE delivery!
+                    <div class="free-ship-bar">
+                        <div class="free-ship-progress" style="width:{{ [(total/999*100)|int, 100]|min }}%"></div>
+                    </div>
+                </div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>₹{{ (total + (0 if total >= 999 else 99))|int }}</span>
+                </div>
+                {% if session.get('user_id') %}
+                <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg w-full checkout-btn">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg w-full">
+                    <i class="fas fa-user"></i> Login to Checkout
+                </a>
+                {% endif %}
+                <div class="secure-checkout">
+                    <i class="fas fa-shield-alt"></i> Secure & Encrypted Checkout
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state" style="padding:5rem 0">
+        <div class="empty-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added any plants yet!</p>
+        <a href="{{ url_for('shop') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-leaf"></i> Browse Plants
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateQty(pid, delta) {
+    const input = document.getElementById('qty_' + pid);
+    const max = parseInt(input.max) || 99;
+    let val = parseInt(input.value) + delta;
+    if (val < 0) val = 0;
+    if (val > max) val = max;
+    if (input.value != val) {
+        input.value = val;
+        input.closest('form').submit();
+    }
+}
+</script>
+{% endblock %}

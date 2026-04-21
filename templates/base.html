@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Premium Khad, Seed, Dava, and Agricultural Tools. Buy high quality farming supplies online.">
+    <title>{% block title %}KisanCard — Khad, Seed, Dava & Tools{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ═══════ TOP SCROLLING NEWS BANNER ═══════ -->
+    <div class="top-news-banner">
+        <div class="scrolling-text">
+            <span>🌿 Welcome to KisanCard! • 🚚 Free delivery on orders above ₹999 • 🌾 100% Genuine Khad & Seeds • 🚜 Top quality tools arrived today!</span>
+        </div>
+    </div>
+
+    <!-- KisanCard 3-Layer Navigation Structure -->
+    
+    <!-- 1. Top Utility Bar (Dark Green) -->
+    <div class="bighaat-top-bar">
+        <div class="container" style="display:flex; justify-content:flex-end; align-items:center;">
+            <a href="#"><i class="fas fa-language"></i> EN</a>
+            <a href="{{ url_for('profile') }}"><i class="fas fa-truck-fast"></i> Track Order</a>
+            <a href="{{ url_for('about') }}"><i class="fas fa-info-circle"></i> About Us</a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}"><i class="fas fa-user"></i> Login / Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2. Main Header (White) -->
+    <header class="bighaat-main-header">
+        <div class="container bighaat-header-inner">
+            <!-- Logo -->
+            <a href="{{ url_for('home') }}" class="nav-logo">
+                <span class="logo-icon" style="color:var(--primary-light);">🌿</span>
+                <span class="logo-text">Plant<span class="logo-accent" style="color:var(--primary);">Nwelog</span></span>
+            </a>
+
+            <!-- Big Central Search Bar -->
+            <form action="{{ url_for('search') }}" method="GET" class="bighaat-search-box">
+                <input type="text" name="q" placeholder="Search for Khad, Plant, Beej, Dava..." value="{{ request.args.get('q', '') }}">
+                <button type="submit"><i class="fas fa-search"></i> SEARCH</button>
+            </form>
+
+            <!-- Actions (Orders, Cart) -->
+            <div class="bighaat-actions">
+                {% if session.get('is_admin') %}
+                <a href="{{ url_for('admin_dashboard') }}">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin</span>
+                </a>
+                {% else %}
+                <a href="{{ url_for('profile') }}">
+                    <i class="far fa-user-circle"></i>
+                    <span>Profile</span>
+                </a>
+                {% endif %}
+                
+                <a href="{{ url_for('profile') }}">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
+                </a>
+
+                <a href="{{ url_for('cart') }}" id="navCart" class="cart-icon-wrapper">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. Category Links Bar -->
+    <nav class="bighaat-category-nav">
+        <div class="container">
+            <ul>
+                <li><a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' }}">Home</a></li>
+                <li><a href="{{ url_for('shop') }}" class="{{ 'active' if request.endpoint == 'shop' }}">All Products</a></li>
+                <li><a href="{{ url_for('shop', category=1) }}">Khad</a></li>
+                <li><a href="{{ url_for('shop', category=2) }}">Plants</a></li>
+                <li><a href="{{ url_for('shop', category=3) }}">Beej</a></li>
+                <li><a href="{{ url_for('shop', category=4) }}">Dava</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ═══════ FLASH MESSAGES ═══════ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" id="flashContainer">
+        {% for category, message in messages %}
+        <div class="flash-msg flash-{{ category }}">
+            <span>
+                {% if category == 'success' %}<i class="fas fa-check-circle"></i>
+                {% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>
+                {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                {{ message }}
+            </span>
+            <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ═══════ ERROR PAGE (if error) ═══════ -->
+    {% if error_code %}
+    <section class="error-page">
+        <div class="error-content">
+            <h1 class="error-code">{{ error_code }}</h1>
+            <p class="error-msg">{{ error_msg }}</p>
+            <a href="{{ url_for('home') }}" class="btn btn-primary"><i class="fas fa-home"></i> Go Home</a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════ FOOTER ═══════ -->
+    {% if not error_code %}
+    {% if footer_ads %}
+    <div class="footer-ad-slider" style="overflow: hidden; background: #fff; padding: 15px 0; max-width: 100%; width: 100vw;">
+        <div class="footer-ad-track" style="display: flex; gap: 20px; animation: slideTrack 20s linear infinite; width: max-content;">
+            {% for ad in footer_ads %}
+            <img src="{{ url_for('static', filename='images/plants/' ~ ad.image_name) }}" alt="Ad Image" style="height: 100px; border-radius: 8px;">
+            {% endfor %}
+            {% for ad in footer_ads %}
+            <img src="{{ url_for('static', filename='images/plants/' ~ ad.image_name) }}" alt="Ad Image" style="height: 100px; border-radius: 8px;">
+            {% endfor %}
+        </div>
+    </div>
+    <style>
+        @keyframes slideTrack {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .footer-ad-track:hover { animation-play-state: paused; }
+    </style>
+    {% endif %}
+    <footer class="footer">
+        <div class="footer-wave">
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+                <path d="M0,40 C360,100 720,0 1080,60 C1260,90 1380,40 1440,40 L1440,100 L0,100 Z"
+                    fill="currentColor" />
+            </svg>
+        </div>
+        <div class="footer-content">
+            <div class="container">
+                <div class="footer-grid">
+                    <!-- Brand Column -->
+                    <div class="footer-col footer-brand">
+                        <a href="{{ url_for('home') }}" class="footer-logo">
+                            <span class="logo-icon">🌿</span> Plant<span class="logo-accent">Nwelog</span>
+                        </a>
+                        <p>Supporting farmers and gardeners. We deliver genuine Khad, Seeds, Dava, and Tools with care.</p>
+                        <div class="footer-social">
+                            <a href="https://www.facebook.com/profile.php?id=61573249506019"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.linkedin.com/in/akash-kumar-9a11ab296?utm_source=share_via&utm_content=profile&utm_medium=member_android"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="{{ url_for('home') }}">Home</a></li>
+                            <li><a href="{{ url_for('shop') }}">Shop Supplies</a></li>
+                            <li><a href="{{ url_for('about') }}">About Us</a></li>
+                            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                            <li><a href="{{ url_for('delivery_login') }}">Delivery Portal</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Delivery Info -->
+                    <div class="footer-col">
+                        <h4>Delivery Info</h4>
+                        <ul>
+                            <li>Free Shipping on orders above ₹999</li>
+                            <li>Standard Delivery: 3-5 Business Days</li>
+                            <li>Same Day Delivery in Mumbai</li>
+                            <li>Live tracking available for all orders</li>
+                            <li>100% Secure & Special Packaging</li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="footer-col">
+                        <h4>Contact Us</h4>
+                        <ul class="footer-contact">
+                            <li><i class="fas fa-map-marker-alt"></i> 42 Green Garden Street, Mumbai</li>
+                            <li><i class="fas fa-phone"></i> +91 7408956686</li>
+                            <li><i class="fas fa-envelope"></i> skykumar7052@gmail.com</li>
+                            <li><i class="fas fa-clock"></i> Mon-Sat: 9 AM - 8 PM</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; 2026 KisanCard. All rights reserved. Made with 🌿 &amp; ❤️</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}My Profile — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>👤 My Profile</h1>
+    </div>
+</div>
+
+<div class="container profile-container">
+    <!-- User Info Card -->
+    <div class="profile-info-card">
+        <div class="profile-avatar">{{ user['username'][0].upper() }}</div>
+        <div class="profile-details">
+            <h2>{{ user['username'] }}</h2>
+            <p><i class="fas fa-envelope"></i> {{ user['email'] }}</p>
+            {% if user['phone'] %}<p><i class="fas fa-phone"></i> {{ user['phone'] }}</p>{% endif %}
+            <p><i class="fas fa-calendar-alt"></i> Member since {{ (user['created_at']|string)[:10] }}</p>
+        </div>
+        <div class="profile-stats">
+            <div class="pstat"><strong>{{ order_details|length }}</strong><span>Orders</span></div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="orders-section">
+        <h3>📦 My Orders</h3>
+        {% if order_details %}
+        {% for od in order_details %}
+        <div class="order-card">
+            <div class="order-card-header">
+                <div>
+                    <strong>Order #{{ od['order']['id'] }}</strong>
+                    <span class="order-date">{{ (od['order']['created_at']|string)[:16] }}</span>
+                </div>
+                <div class="order-card-right">
+                    {% if od['order']['status'] == 'Delivered' %}
+                    <span class="status-badge" style="background:#dcfce7; color:#166534; padding:0.4rem 0.8rem; border-radius:20px; font-weight:600; font-size:0.85rem;"><i class="fas fa-check-circle"></i> Delivered</span>
+                    {% elif od['order']['status'] == 'Pending' %}
+                    <span class="status-badge" style="background:#fef3c7; color:#d97706; padding:0.4rem 0.8rem; border-radius:20px; font-weight:600; font-size:0.85rem;"><i class="fas fa-clock"></i> Pending</span>
+                    {% else %}
+                    <span class="status-badge" style="background:#f3f4f6; color:#4b5563; padding:0.4rem 0.8rem; border-radius:20px; font-weight:600; font-size:0.85rem;">{{ od['order']['status'] }}</span>
+                    {% endif %}
+                    <strong class="order-total">₹{{ od['order']['total']|int }}</strong>
+                </div>
+            </div>
+            <div class="order-items-list">
+                {% for item in od['items'] %}
+                <span class="order-item-pill">{{ item['product_name'] }} × {{ item['quantity'] }}</span>
+                {% endfor %}
+            </div>
+            {% if od['order']['verification_code'] %}
+            <div style="margin: 1rem 0; padding: 0.8rem; background-color: #f0fdf4; border: 1px dashed #22c55e; border-radius: 8px; font-weight: bold; color: #166534; text-align: center;">
+                Delivery OTP: <span style="font-size: 1.2rem; letter-spacing: 2px;">{{ od['order']['verification_code'] }}</span>
+            </div>
+            {% endif %}
+            <div class="order-card-footer">
+                <span><i class="fas fa-map-marker-alt"></i> {{ od['order']['address'] }}, {{ od['order']['city'] }}</span>
+                <span><i class="fas fa-credit-card"></i> {{ od['order']['payment_method'] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state" style="padding:3rem 0">
+            <div class="empty-icon">📦</div>
+            <p>No orders yet. Shop now!</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">Browse Plants</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+{% block title %}KisanCard — Plants That Grow With You{% endblock %}
+
+{% block content %}
+
+<!-- ═══════ PINCODE GATEWAY / SPLASH SCREEN ═══════ -->
+<div class="pincode-overlay" id="pincodeGatewayOverlay">
+    <div class="pincode-modal">
+        <div class="success-icon" style="font-size:3rem; margin-bottom:1rem">🌿</div>
+        <h2>Welcome to KisanCard</h2>
+        <p>Before exploring our supplies, please verify serviceability in your area.</p>
+        
+        <form id="pincodeGatewayForm" class="pincode-form">
+            <div class="form-group">
+                <label for="gatewayName">Full Name</label>
+                <input type="text" id="gatewayName" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+                <label for="gatewayPhone">Phone Number</label>
+                <input type="tel" id="gatewayPhone" placeholder="10-digit number" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group">
+                <label for="gatewayPincode">Select or Enter Pincode</label>
+                <input type="text" id="gatewayPincode" list="pincodeSuggestions" placeholder="e.g. 274303" required autocomplete="off">
+                <datalist id="pincodeSuggestions">
+                    <option value="274303">
+                    <option value="274304">
+                    <option value="274302">
+                    <option value="274301">
+                    <option value="845104">
+                </datalist>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-full" style="margin-top:0.5rem">Check Serviceability</button>
+        </form>
+    </div>
+</div>
+
+<!-- Error Toast -->
+<div class="error-toast" id="pincodeErrorToast">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="pincodeErrorMsg">Invalid Pincode.</span>
+</div>
+
+<!-- ═══════ HERO SECTION ═══════ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-container">
+        <div class="hero-text">
+            <span class="hero-badge"><i class="fas fa-tractor"></i> 100% Authentic Supplies</span>
+            <h1>Bring Growth <br>To Your <span class="text-accent">Farm</span></h1>
+            <p>Discover our top quality Khad, Seeds, Dava, and Agricultural Tools. Each supply comes with usage instructions and our happiness guarantee.</p>
+            <div class="hero-btns">
+                <a href="{{ url_for('shop') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-seedling"></i> Shop Now
+                </a>
+                <a href="{{ url_for('about') }}" class="btn btn-outline btn-lg">Learn More</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num">500+</span>
+                    <span class="stat-label">Agri Products</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num">10K+</span>
+                    <span class="stat-label">Happy Customers</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num">4.9⭐</span>
+                    <span class="stat-label">Average Rating</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-circle">
+                <div class="hero-plant-emoji">🌿</div>
+                <div class="floating-badge badge-1"><i class="fas fa-truck"></i> Free Delivery</div>
+                <div class="floating-badge badge-2"><i class="fas fa-shield-alt"></i> Guaranteed Live</div>
+                <div class="floating-badge badge-3"><i class="fas fa-star"></i> Premium Quality</div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path d="M0,60 C480,100 960,20 1440,60 L1440,100 L0,100 Z" fill="white"/>
+        </svg>
+    </div>
+</section>
+
+<!-- ═══════ FEATURES BAR ═══════ -->
+<section class="features-bar">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-truck-fast"></i>
+                <div>
+                    <h4>Free Shipping</h4>
+                    <p>On orders above ₹999</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-leaf"></i>
+                <div>
+                    <h4>Quality Guaranteed</h4>
+                    <p>100% authentic or replace</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-book-open"></i>
+                <div>
+                    <h4>Usage Guides</h4>
+                    <p>Expert tips with every order</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-rotate-left"></i>
+                <div>
+                    <h4>Easy Returns</h4>
+                    <p>7-day return policy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ CATEGORIES SECTION ═══════ -->
+<section class="section categories-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Browse By</span>
+            <h2>Agri <span class="text-accent">Categories</span></h2>
+            <p>Find the perfect supplies for your farm and garden</p>
+        </div>
+        <div class="bighaat-categories-grid">
+            {% for cat in categories %}
+            <a href="{{ url_for('shop', category=cat['id']) }}" class="bighaat-category-circle">
+                <div class="bighaat-circle-icon">{{ cat['icon']|safe }}</div>
+                <h3>{{ cat['name'] }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ FEATURED PRODUCTS ═══════ -->
+<section class="section featured-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Hand Picked</span>
+            <h2>Featured <span class="text-accent">Supplies</span></h2>
+            <p>Our most loved supplies by our farming community</p>
+        </div>
+        <div class="products-grid" id="featuredGrid">
+            {% for product in featured %}
+            <div class="product-card" style="border-radius:12px; overflow:hidden; border:1px solid var(--border-color); --delay: {{ loop.index * 0.08 }}s">
+                <div class="product-img-wrap" style="position:relative;">
+                    <a href="{{ url_for('product_detail', product_id=product['id']) }}">
+                        <img src="{{ url_for('static', filename='images/plants/' + product['image1']) }}"
+                             alt="{{ product['name'] }}" style="width:100%; height:200px; object-fit:cover;"
+                             onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    </a>
+                    
+                    {% if product['sale_price'] and product['sale_price'] > 0 %}
+                    <span class="bighaat-discount-tag">
+                        {{ ((product['price'] - product['sale_price']) / product['price'] * 100)|int }}% OFF
+                    </span>
+                    {% endif %}
+                    
+                    <span style="position:absolute; top:10px; right:10px; background:var(--white); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);"><i class="far fa-heart" style="color:var(--text-muted)"></i></span>
+                </div>
+                
+                <div class="product-info" style="padding:1rem;">
+                    <span class="bighaat-rating-pill">
+                        {{ product['rating']|float }} <i class="fas fa-star" style="font-size:0.6rem; margin-left:3px; padding-bottom:1px;"></i> | 120
+                    </span>
+                    
+                    <h3 class="product-name" style="font-size:1rem; margin:0.3rem 0; font-weight:600; color:var(--text-dark); display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                        <a href="{{ url_for('product_detail', product_id=product['id']) }}" style="color:inherit;">{{ product['name'] }}</a>
+                    </h3>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">KisanCard Brand</div>
+                    
+                    <div class="product-price">
+                        {% if product['sale_price'] and product['sale_price'] > 0 %}
+                        <div style="display:flex; align-items:baseline; gap:0.5rem;">
+                            <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ product['sale_price']|int }}</span>
+                            <span class="price-original" style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;">₹{{ product['price']|int }}</span>
+                        </div>
+                        <div style="color:var(--primary-light); font-size:0.8rem; font-weight:600;">Save ₹{{ (product['price'] - product['sale_price'])|int }}</div>
+                        {% else %}
+                        <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ product['price']|int }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="shop-card-btns" style="margin-top:1rem;">
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}">
+                            <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; justify-content:space-between; align-items:center;">
+                                <select style="border:1px solid var(--border-color); border-radius:4px; padding:0.4rem; font-size:0.8rem; flex:1;">
+                                    <option>Standard Size</option>
+                                </select>
+                                
+                                <div style="display:flex; border:1px solid var(--border-color); border-radius:4px; overflow:hidden; width:75px; height:32px;">
+                                    <button type="button" onclick="var inp=this.nextElementSibling; if(parseInt(inp.value)>1) inp.value=parseInt(inp.value)-1;" style="background:var(--bg-light); border:none; width:22px; cursor:pointer; font-weight:bold;">-</button>
+                                    <input type="number" name="qty" value="1" min="1" max="{{ product['stock'] }}" style="width:31px; border:none; text-align:center; padding:0; -moz-appearance:textfield;" onkeydown="return false;">
+                                    <button type="button" onclick="var inp=this.previousElementSibling; if(parseInt(inp.value)<parseInt(inp.max||100)) inp.value=parseInt(inp.value)+1;" style="background:var(--bg-light); border:none; width:22px; cursor:pointer; font-weight:bold;">+</button>
+                                </div>
+                            </div>
+                            
+                            <div style="display:flex; gap:0.5rem;">
+                                <button type="submit" class="btn btn-outline btn-sm" style="flex:1; border-color:var(--primary); color:var(--primary);" {{ 'disabled' if product['stock'] <= 0 }}>
+                                    Add
+                                </button>
+                                <button type="submit" formaction="{{ url_for('buy_now', product_id=product['id']) }}" class="btn btn-sm" style="flex:1; background-color:var(--accent); color:var(--white); border:none;" {{ 'disabled' if product['stock'] <= 0 }}>
+                                    Buy Now
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-center">No featured products yet.</p>
+            {% endfor %}
+        </div>
+            <a href="{{ url_for('shop') }}" class="btn btn-outline btn-lg">View All Supplies <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ GREEN BANNER ═══════ -->
+<section class="green-banner">
+    <div class="container">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h2>🌱 Discover Fresh Arrivals!</h2>
+                <p>Browse our extensive collection of high-quality tools and seeds.</p>
+            </div>
+            <a href="{{ url_for('shop') }}" class="btn btn-light btn-lg">Claim Offer</a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ LATEST ARRIVALS ═══════ -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">New Arrivals</span>
+            <h2>Just <span class="text-accent">Arrived</span></h2>
+            <p>Fresh additions to our stock</p>
+        </div>
+        <div class="products-grid">
+            {% for product in latest %}
+            <div class="product-card">
+                <div class="product-img-wrap">
+                    <a href="{{ url_for('product_detail', product_id=product['id']) }}">
+                        <img src="{{ url_for('static', filename='images/plants/' + product['image1']) }}"
+                             alt="{{ product['name'] }}"
+                             onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    </a>
+                    <span class="product-badge badge-new">NEW</span>
+                    <div class="product-actions">
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}">
+                            <input type="hidden" name="qty" value="1">
+                            <button type="submit" class="btn-quick-cart"><i class="fas fa-shopping-bag"></i></button>
+                        </form>
+                        <a href="{{ url_for('product_detail', product_id=product['id']) }}" class="btn-quick-view"><i class="fas fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name"><a href="{{ url_for('product_detail', product_id=product['id']) }}">{{ product['name'] }}</a></h3>
+                    <div class="product-price">
+                        {% if product['sale_price'] and product['sale_price'] > 0 %}
+                        <span class="price-sale">₹{{ product['sale_price']|int }}</span>
+                        <span class="price-original">₹{{ product['price']|int }}</span>
+                        {% else %}
+                        <span class="price-sale">₹{{ product['price']|int }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ TESTIMONIALS ═══════ -->
+<section class="section testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Customer Love</span>
+            <h2>What Our <span class="text-accent">Customers</span> Say</h2>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                <p>"Ordered Khad and seeds and all of them arrived safely. The crop yield is thriving! Will definitely order again."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P</div>
+                    <div><strong>Priya Sharma</strong><span>Mumbai</span></div>
+                </div>
+            </div>
+            <div class="testimonial-card featured-testimonial">
+                <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                <p>"Best agricultural store online! The tools I bought 2 months ago are doing amazing. Customer support is very helpful and responsive."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">R</div>
+                    <div><strong>Rahul Gupta</strong><span>Delhi</span></div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                <p>"The usage guides that come with each product are incredibly detailed. Even a total beginner like me is getting great yields now!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">A</div>
+                    <div><strong>Anita Patel</strong><span>Ahmedabad</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ WHY US SECTION ═══════ -->
+<section class="section why-us-section">
+    <div class="container">
+        <div class="why-us-grid">
+            <div class="why-us-visual">
+                <div class="why-plant-bg">🚜</div>
+                <div class="why-stat-card card-1">
+                    <span class="stat-icon">🌾</span>
+                    <div><strong>500+</strong><small>Agri Products</small></div>
+                </div>
+                <div class="why-stat-card card-2">
+                    <span class="stat-icon">😊</span>
+                    <div><strong>10K+</strong><small>Happy Custumers</small></div>
+                </div>
+            </div>
+            <div class="why-us-text">
+                <span class="section-badge">Why KisanCard</span>
+                <h2>We're More Than Just <span class="text-accent">a Supply Shop</span></h2>
+                <p>We're agriculture enthusiasts who believe quality supplies transform your yield. Every product is hand-inspected before shipping.</p>
+                <ul class="why-list">
+                    <li><i class="fas fa-check-circle"></i> <strong>Expert Curation</strong> — Only the best supplies make it to you</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Safe Packaging</strong> — Special eco-friendly packaging for safe transit</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>After-care Support</strong> — We're here if you need help</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Sustainable Sourcing</strong> — Ethically sourced from verified manufacturers</li>
+                </ul>
+                <a href="{{ url_for('about') }}" class="btn btn-primary">Our Story <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════ NEWSLETTER ═══════ -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <i class="fas fa-envelope-open-text newsletter-icon"></i>
+            <h2>Get Farming Tips & Offers</h2>
+            <p>Subscribe to our newsletter and get 10% off your first order!</p>
+            <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+                <input type="email" placeholder="Enter your email address..." required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

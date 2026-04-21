@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Delivery Dashboard — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:#166534; color:white;">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>🛵 Mission Control</h1>
+        <a href="{{ url_for('delivery_logout') }}" class="btn btn-sm btn-outline" style="color:white; border-color:white;">Logout</a>
+    </div>
+</div>
+
+<div class="container" style="padding:2rem 0; max-width:800px; margin:auto;">
+    <h2 style="margin-bottom:1rem;">Your Active Deliveries ({{ orders|length }})</h2>
+    
+    {% if orders %}
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        {% for od in orders %}
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 10px rgba(0,0,0,0.08); border-left:5px solid #22c55e;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid #e5e7eb; padding-bottom:0.5rem;">
+                <div>
+                    <strong>Order #{{ od['order']['id'] }}</strong>
+                    <div style="color:#6b7280; font-size:0.9rem;">{{ od['order']['created_at'].strftime('%Y-%m-%d %H:%M') if od['order']['created_at'] else '' }}</div>
+                </div>
+                <div style="text-align:right;">
+                    <strong style="color:#ef4444; font-size:1.2rem;">₹{{ od['order']['total']|int }}</strong> 
+                    <div style="font-size:0.85rem; background:#fef3c7; color:#d97706; padding:0.2rem 0.6rem; border-radius:20px;">{{ od['order']['payment_method'] }}</div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom:1rem;">
+                <p style="margin:0.25rem 0;"><i class="fas fa-user"></i> <strong>{{ od['order']['name'] }}</strong></p>
+                <p style="margin:0.25rem 0;"><i class="fas fa-phone"></i> <a href="tel:{{ od['order']['phone'] }}" style="color:#2563eb; font-weight:bold;">{{ od['order']['phone'] }}</a></p>
+                <p style="margin:0.25rem 0; color:#374151;"><i class="fas fa-map-marker-alt"></i> {{ od['order']['address'] }}, {{ od['order']['city'] }} - {{ od['order']['pincode'] }}</p>
+            </div>
+            
+            <div style="background:#f9fafb; padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+                <strong style="font-size:0.9rem; text-transform:uppercase; color:#6b7280;">Items to Deliver:</strong>
+                <ul style="margin:0.5rem 0 0 0; padding-left:1.2rem; font-size:0.95rem;">
+                    {% for item in od['items'] %}
+                    <li>{{ item['quantity'] }}x {{ item['product_name'] }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <form method="POST" action="{{ url_for('delivery_verify', order_id=od['order']['id']) }}" style="display:flex; gap:0.5rem;">
+                <input type="text" name="verification_code" placeholder="Enter 6-Digit OTP" required 
+                       style="flex:1; padding:0.8rem; border:2px solid #cbd5e1; border-radius:8px; font-size:1.1rem; text-align:center; letter-spacing:2px; font-weight:bold;">
+                <button type="submit" class="btn btn-primary" style="background:#22c55e; border:none; padding:0 1.5rem; font-size:1rem;">
+                    <i class="fas fa-check-circle"></i> Verify
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:4rem 0; background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">
+        <div style="font-size:4rem; color:#d1d5db; margin-bottom:1rem;">🎉</div>
+        <h3 style="color:#4b5563;">You're all caught up!</h3>
+        <p style="color:#9ca3af;">No pending deliveries assigned to you right now.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

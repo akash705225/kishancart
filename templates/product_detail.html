@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}{{ product['name'] }} — KisanCard{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> /
+        <a href="{{ url_for('shop') }}">Shop</a> /
+        <span>{{ product['name'] }}</span>
+    </nav>
+
+    <div class="product-detail-grid">
+        <!-- Product Image -->
+        <div class="detail-img-col">
+            <div class="detail-img-wrap">
+                <img src="{{ url_for('static', filename='images/plants/' + product['image1']) }}"
+                     alt="{{ product['name'] }}" id="mainProductImg"
+                     onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                {% if product['sale_price'] and product['sale_price'] > 0 %}
+                <span class="product-badge badge-sale" style="font-size:1rem; padding:0.4rem 1rem">SALE</span>
+                {% endif %}
+            </div>
+            <!-- Thumbnails using actual image fields -->
+            <div class="detail-thumbs">
+                {% if product['image1'] %}
+                <div class="thumb active" onclick="swapMainImage(this, '{{ url_for('static', filename='images/plants/' + product['image1']) }}')">
+                    <img src="{{ url_for('static', filename='images/plants/' + product['image1']) }}" onerror="this.style.display='none'">
+                </div>
+                {% endif %}
+                {% if product['image2'] and product['image2'] != 'default.jpg' %}
+                <div class="thumb" onclick="swapMainImage(this, '{{ url_for('static', filename='images/plants/' + product['image2']) }}')">
+                    <img src="{{ url_for('static', filename='images/plants/' + product['image2']) }}" onerror="this.style.display='none'">
+                </div>
+                {% endif %}
+                {% if product['image3'] and product['image3'] != 'default.jpg' %}
+                <div class="thumb" onclick="swapMainImage(this, '{{ url_for('static', filename='images/plants/' + product['image3']) }}')">
+                    <img src="{{ url_for('static', filename='images/plants/' + product['image3']) }}" onerror="this.style.display='none'">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="detail-info-col">
+            <span class="product-category">{{ product['category_name'] or 'Plant' }}</span>
+            <h1 class="detail-title" style="margin-bottom:0.25rem;">{{ product['name'] }}</h1>
+            
+            <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-color);">
+                <strong>SKU:</strong> {{ product['custom_id'] or 'N/A' }} &nbsp;|&nbsp; 
+                <i class="fas fa-weight-hanging"></i> <strong>Weight/Unit:</strong> {{ product['weight'] or 'N/A' }}
+            </div>
+
+            <div class="detail-rating">
+                {% set rating = product['rating']|float %}
+                {% for i in range(5) %}
+                    {% if i < rating|int %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                {% endfor %}
+                <span>{{ rating }} / 5.0</span>
+            </div>
+
+            <div class="detail-price">
+                {% if product['sale_price'] and product['sale_price'] > 0 %}
+                <span class="price-sale big-price">₹{{ product['sale_price']|int }}</span>
+                <span class="price-original">₹{{ product['price']|int }}</span>
+                <span class="discount-tag">
+                    {{ ((product['price'] - product['sale_price']) / product['price'] * 100)|int }}% OFF
+                </span>
+                {% else %}
+                <span class="price-sale big-price">₹{{ product['price']|int }}</span>
+                {% endif %}
+            </div>
+
+            <p class="detail-desc">{{ product['description'] }}</p>
+
+            <!-- Stock Status -->
+            <div class="detail-stock">
+                {% if product['stock'] > 10 %}
+                <span class="stock-badge in-stock"><i class="fas fa-check-circle"></i> In Stock</span>
+                {% elif product['stock'] > 0 %}
+                <span class="stock-badge low-stock"><i class="fas fa-exclamation-circle"></i> Only {{ product['stock'] }} left!</span>
+                {% else %}
+                <span class="stock-badge out-stock"><i class="fas fa-times-circle"></i> Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- Add to Cart Form -->
+            {% if product['stock'] > 0 %}
+            <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}" class="detail-cart-form">
+                <div class="qty-control">
+                    <label>Quantity:</label>
+                    <div class="qty-input-wrap">
+                        <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                        <input type="number" name="qty" id="qtyInput" value="1" min="1" max="{{ product['stock'] }}" class="qty-input">
+                        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+                <div class="detail-btns" style="display:flex; flex-direction:column; gap:0.5rem; width:100%; max-width:400px;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <button type="submit" class="btn btn-outline btn-lg" style="flex:1;">
+                            <i class="fas fa-shopping-bag"></i> Add to Cart
+                        </button>
+                        <a href="{{ url_for('cart') }}" class="btn btn-outline btn-lg" style="flex:1; display:flex; justify-content:center; align-items:center;">
+                            <i class="fas fa-shopping-cart"></i> View Cart
+                        </a>
+                    </div>
+                    <button type="submit" formaction="{{ url_for('buy_now', product_id=product['id']) }}" class="btn btn-primary btn-lg" style="background:#25D366; border-color:#25D366; width:100%;">
+                        <i class="fab fa-whatsapp"></i> Buy via WhatsApp
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+
+            <!-- Plant Care Info -->
+            <div class="care-info">
+                <div class="care-item">
+                    <i class="fas fa-tint" style="color:#3b82f6"></i>
+                    <div><strong>Water</strong><span>Twice weekly</span></div>
+                </div>
+                <div class="care-item">
+                    <i class="fas fa-sun" style="color:#f59e0b"></i>
+                    <div><strong>Sunlight</strong><span>Indirect bright</span></div>
+                </div>
+                <div class="care-item">
+                    <i class="fas fa-thermometer-half" style="color:#ef4444"></i>
+                    <div><strong>Temp</strong><span>18–30°C</span></div>
+                </div>
+                <div class="care-item">
+                    <i class="fas fa-seedling" style="color:#22c55e"></i>
+                    <div><strong>Skill Level</strong><span>Beginner</span></div>
+                </div>
+            </div>
+
+            <!-- Guarantees -->
+            <div class="detail-guarantees">
+                <span><i class="fas fa-shield-alt"></i> Live Plant Guarantee</span>
+                <span><i class="fas fa-truck"></i> Safe Delivery</span>
+                <span><i class="fas fa-redo"></i> 7-Day Returns</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+    <section style="margin-top:4rem">
+        <h2 class="section-title">🌿 Related Plants</h2>
+        <div class="products-grid">
+            {% for r in related %}
+            <div class="product-card" style="border-radius:12px; overflow:hidden; border:1px solid var(--border-color);">
+                <div class="product-img-wrap" style="position:relative;">
+                    <a href="{{ url_for('product_detail', product_id=r['id']) }}">
+                        <img src="{{ url_for('static', filename='images/plants/' + r['image1']) }}"
+                             alt="{{ r['name'] }}" style="width:100%; height:200px; object-fit:cover;"
+                             onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    </a>
+                    
+                    {% if r['sale_price'] and r['sale_price'] > 0 %}
+                    <span class="bighaat-discount-tag">
+                        {{ ((r['price'] - r['sale_price']) / r['price'] * 100)|int }}% OFF
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="product-info" style="padding:1rem;">
+                    <span class="bighaat-rating-pill">
+                        {{ r['rating']|default(4.5)|float }} <i class="fas fa-star" style="font-size:0.6rem; margin-left:3px; padding-bottom:1px;"></i>
+                    </span>
+                    
+                    <h3 class="product-name" style="font-size:1rem; margin:0.3rem 0; font-weight:600; color:var(--text-dark); display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                        <a href="{{ url_for('product_detail', product_id=r['id']) }}" style="color:inherit;">{{ r['name'] }}</a>
+                    </h3>
+                    
+                    <div class="product-price">
+                        {% if r['sale_price'] and r['sale_price'] > 0 %}
+                        <div style="display:flex; align-items:baseline; gap:0.5rem;">
+                            <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ r['sale_price']|int }}</span>
+                            <span class="price-original" style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;">₹{{ r['price']|int }}</span>
+                        </div>
+                        {% else %}
+                        <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ r['price']|int }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    const max = parseInt(input.max) || 99;
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    if (val > max) val = max;
+    input.value = val;
+}
+function swapMainImage(thumbElem, imgUrl) {
+    // Swap main image
+    document.getElementById('mainProductImg').src = imgUrl;
+    // Update active thumb state
+    document.querySelectorAll('.thumb').forEach(x => x.classList.remove('active'));
+    thumbElem.classList.add('active');
+}
+</script>
+{% endblock %}

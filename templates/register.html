@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Register — KisanCard{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-logo">🌿</span>
+            <h2>Create Account</h2>
+            <p>Join 10,000+ plant lovers on KisanCard</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form" novalidate>
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" placeholder="Choose a username (min 3 chars)" required minlength="3" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password" placeholder="Min 6 characters" required minlength="6">
+                    <button type="button" class="toggle-pass" onclick="togglePass('password', 'icon1')">
+                        <i class="fas fa-eye" id="icon1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password"><i class="fas fa-lock"></i> Confirm Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password" required>
+                    <button type="button" class="toggle-pass" onclick="togglePass('confirm_password', 'icon2')">
+                        <i class="fas fa-eye" id="icon2"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Password Strength Indicator -->
+            <div class="password-strength" id="strengthBar" style="display:none">
+                <div class="strength-fill" id="strengthFill"></div>
+            </div>
+            <p class="strength-label" id="strengthLabel"></p>
+
+            <button type="submit" class="btn btn-primary btn-lg w-full">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+    <div class="auth-visual">
+        <div class="auth-plant-bg">🌳</div>
+        <div class="auth-features">
+            <div class="auth-feature"><i class="fas fa-gift"></i> Welcome Offer — 10% Off First Order</div>
+            <div class="auth-feature"><i class="fas fa-history"></i> Track All Your Orders</div>
+            <div class="auth-feature"><i class="fas fa-star"></i> Exclusive Member Discounts</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePass(id, iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.classList.toggle('fa-eye');
+    icon.classList.toggle('fa-eye-slash');
+}
+// Password strength meter
+document.getElementById('password').addEventListener('input', function() {
+    const v = this.value;
+    const bar = document.getElementById('strengthBar');
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    if (!v) { bar.style.display='none'; label.textContent=''; return; }
+    bar.style.display = 'block';
+    let strength = 0;
+    if (v.length >= 6) strength++;
+    if (v.length >= 10) strength++;
+    if (/[A-Z]/.test(v)) strength++;
+    if (/[0-9]/.test(v)) strength++;
+    if (/[!@#$%^&*]/.test(v)) strength++;
+    const colors = ['#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
+    const labels = ['Very Weak','Weak','Fair','Strong','Very Strong'];
+    fill.style.width = (strength/5*100)+'%';
+    fill.style.background = colors[strength-1] || '#ef4444';
+    label.textContent = labels[strength-1] || '';
+    label.style.color = colors[strength-1] || '#ef4444';
+});
+</script>
+{% endblock %}

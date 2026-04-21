@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Manage Orders — Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <aside class="admin-sidebar">
+        <div class="admin-brand"><span>🌿</span> Admin Panel</div>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_products') }}" class="admin-link"><i class="fas fa-leaf"></i> Products</a>
+            <a href="{{ url_for('admin_add_product') }}" class="admin-link"><i class="fas fa-plus-circle"></i> Add Product</a>
+            <a href="{{ url_for('admin_orders') }}" class="admin-link active"><i class="fas fa-box"></i> Orders</a>
+            <a href="{{ url_for('admin_delivery_boys') }}" class="admin-link"><i class="fas fa-motorcycle"></i> Delivery Boys</a>
+            <a href="{{ url_for('admin_ads') }}" class="admin-link {{ 'active' if 'ads' in request.endpoint }}"><i class="fas fa-images"></i> Footer Ads</a>
+            {% if session.get('role') == 'super_admin' %}
+            <a href="{{ url_for('admin_sub_admins') }}" class="admin-link"><i class="fas fa-users-cog"></i> Sub Admins</a>
+            {% endif %}
+            <hr class="admin-nav-hr">
+            <a href="{{ url_for('home') }}" class="admin-link"><i class="fas fa-store"></i> View Store</a>
+            <a href="{{ url_for('logout') }}" class="admin-link admin-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1><i class="fas fa-box"></i> All Orders ({{ order_details|length }})</h1>
+        </div>
+
+        {% if order_details %}
+        {% for od in order_details %}
+        <div class="admin-order-card">
+            <div class="admin-order-header">
+                <div>
+                    <strong>Order #{{ od['order']['id'] }}</strong>
+                    <span class="order-date">{{ (od['order']['created_at']|string)[:16] }}</span>
+                </div>
+                <div class="admin-order-right">
+                    <span class="status-badge status-{{ od['order']['status']|lower }}">{{ od['order']['status'] }}</span>
+                    <strong>₹{{ od['order']['total']|int }}</strong>
+                </div>
+            </div>
+
+            <div class="admin-order-body">
+                <div class="admin-order-customer">
+                    <p><i class="fas fa-user"></i> <strong>{{ od['order']['name'] }}</strong> (@{{ od['order']['username'] }})</p>
+                    <p><i class="fas fa-envelope"></i> {{ od['order']['email'] }}</p>
+                    <p><i class="fas fa-phone"></i> {{ od['order']['phone'] }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ od['order']['address'] }}, {{ od['order']['city'] }} - {{ od['order']['pincode'] }}</p>
+                    <p><i class="fas fa-credit-card"></i> {{ od['order']['payment_method'] }}</p>
+                </div>
+                <div class="admin-order-items">
+                    <strong>Items:</strong>
+                    {% for item in od['items'] %}
+                    <div class="admin-order-item-row">
+                        <span>{{ item['product_name'] }}</span>
+                        <span>× {{ item['quantity'] }}</span>
+                        <span>₹{{ (item['price'] * item['quantity'])|int }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="admin-order-status-update">
+                    <form method="POST" action="{{ url_for('admin_order_status', order_id=od['order']['id']) }}">
+                        <label>Update Status:</label>
+                        <select name="status">
+                            {% for status in ['Pending','Processing','Shipped','Delivered','Cancelled'] %}
+                            <option value="{{ status }}" {{ 'selected' if od['order']['status'] == status }}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_assign_order', order_id=od['order']['id']) }}" style="margin-top:0.5rem">
+                        <label>Assign Delivery:</label>
+                        <select name="delivery_boy_id">
+                            <option value="">Unassigned</option>
+                            {% for dboy in delivery_boys %}
+                            <option value="{{ dboy['id'] }}" {{ 'selected' if od['order']['delivery_boy_id'] == dboy['id'] }}>{{ dboy['username'] }} ({{ dboy['zone'] }})</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-secondary btn-sm">Assign</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet.</p></div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Shop Plants — KisanCard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🌿 Plant Shop</h1>
+        <p>{{ products|length }} plants available{% if search_query %} for "<strong>{{ search_query }}</strong>"{% endif %}</p>
+    </div>
+</div>
+
+<div class="container shop-container">
+    <!-- ═══ FILTER SIDEBAR ═══ -->
+    <aside class="shop-sidebar">
+        <div class="sidebar-card">
+            <h3>🔍 Search</h3>
+            <form action="{{ url_for('shop') }}" method="GET" id="filterForm">
+                <input type="text" name="q" class="sidebar-search" placeholder="Search plants..." value="{{ search_query or '' }}">
+                <input type="hidden" name="category" value="{{ current_category or '' }}">
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+
+                <h3 style="margin-top:1.5rem">📂 Categories</h3>
+                <ul class="filter-list">
+                    <li>
+                        <a href="{{ url_for('shop', sort=current_sort) }}"
+                           class="filter-link {{ 'active' if not current_category }}">
+                            All Plants
+                        </a>
+                    </li>
+                    {% for cat in categories %}
+                    <li>
+                        <a href="{{ url_for('shop', category=cat['id'], sort=current_sort) }}"
+                           class="filter-link {{ 'active' if current_category == cat['id'] }}">
+                            {{ cat['icon']|safe }} {{ cat['name'] }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- ═══ PRODUCTS AREA ═══ -->
+    <div class="shop-main">
+        <!-- Sort Bar -->
+        <div class="sort-bar">
+            <span class="result-count"><strong>{{ products|length }}</strong> products found</span>
+            <div class="sort-controls">
+                <label>Sort by:</label>
+                <select id="sortSelect" onchange="applySort(this.value)">
+                    <option value="newest" {{ 'selected' if current_sort == 'newest' }}>Newest First</option>
+                    <option value="name" {{ 'selected' if current_sort == 'name' }}>Name A–Z</option>
+                    <option value="price_low" {{ 'selected' if current_sort == 'price_low' }}>Price: Low to High</option>
+                    <option value="price_high" {{ 'selected' if current_sort == 'price_high' }}>Price: High to Low</option>
+                    <option value="rating" {{ 'selected' if current_sort == 'rating' }}>Top Rated</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        {% if products %}
+        <div class="products-grid shop-grid">
+            {% for product in products %}
+            <div class="product-card" style="border-radius:12px; overflow:hidden; border:1px solid var(--border-color);">
+                <div class="product-img-wrap" style="position:relative;">
+                    <a href="{{ url_for('product_detail', product_id=product['id']) }}">
+                        <img src="{{ url_for('static', filename='images/plants/' + product['image1']) }}"
+                             alt="{{ product['name'] }}" style="width:100%; height:200px; object-fit:cover;"
+                             onerror="this.src='{{ url_for('static', filename='images/plant_placeholder.svg') }}'">
+                    </a>
+                    
+                    {% if product['sale_price'] and product['sale_price'] > 0 %}
+                    <span class="bighaat-discount-tag">
+                        {{ ((product['price'] - product['sale_price']) / product['price'] * 100)|int }}% OFF
+                    </span>
+                    {% endif %}
+                    
+                    <span style="position:absolute; top:10px; right:10px; background:var(--white); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);"><i class="far fa-heart" style="color:var(--text-muted)"></i></span>
+                </div>
+                
+                <div class="product-info" style="padding:1rem;">
+                    <span class="bighaat-rating-pill">
+                        {{ product['rating']|float }} <i class="fas fa-star" style="font-size:0.6rem; margin-left:3px; padding-bottom:1px;"></i> | 120
+                    </span>
+                    
+                    <h3 class="product-name" style="font-size:1rem; margin:0.3rem 0; font-weight:600; color:var(--text-dark); display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                        <a href="{{ url_for('product_detail', product_id=product['id']) }}" style="color:inherit;">{{ product['name'] }}</a>
+                    </h3>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">KisanCard Brand</div>
+                    
+                    <div class="product-price">
+                        {% if product['sale_price'] and product['sale_price'] > 0 %}
+                        <div style="display:flex; align-items:baseline; gap:0.5rem;">
+                            <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ product['sale_price']|int }}</span>
+                            <span class="price-original" style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;">₹{{ product['price']|int }}</span>
+                        </div>
+                        <div style="color:var(--primary-light); font-size:0.8rem; font-weight:600;">Save ₹{{ (product['price'] - product['sale_price'])|int }}</div>
+                        {% else %}
+                        <span class="price-sale" style="font-size:1.15rem; font-weight:700;">₹{{ product['price']|int }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="shop-card-btns" style="margin-top:1rem;">
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}">
+                            <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; justify-content:space-between; align-items:center;">
+                                <!-- Size Dropdown Stand-in -->
+                                <select style="border:1px solid var(--border-color); border-radius:4px; padding:0.4rem; font-size:0.8rem; flex:1;">
+                                    <option>Standard Size</option>
+                                    <option>Large Pack</option>
+                                </select>
+                                
+                                <div style="display:flex; border:1px solid var(--border-color); border-radius:4px; overflow:hidden; width:75px; height:32px;">
+                                    <button type="button" onclick="var inp=this.nextElementSibling; if(parseInt(inp.value)>1) inp.value=parseInt(inp.value)-1;" style="background:var(--bg-light); border:none; width:22px; cursor:pointer; font-weight:bold;">-</button>
+                                    <input type="number" name="qty" value="1" min="1" max="{{ product['stock'] }}" style="width:31px; border:none; text-align:center; padding:0; -moz-appearance:textfield;" onkeydown="return false;">
+                                    <button type="button" onclick="var inp=this.previousElementSibling; if(parseInt(inp.value)<parseInt(inp.max||100)) inp.value=parseInt(inp.value)+1;" style="background:var(--bg-light); border:none; width:22px; cursor:pointer; font-weight:bold;">+</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div style="display:flex; gap:0.5rem;">
+                                <button type="submit" class="btn btn-outline btn-sm" style="flex:1; border-color:var(--primary); color:var(--primary);" {{ 'disabled' if product['stock'] <= 0 }}>
+                                    Add
+                                </button>
+                                <button type="submit" formaction="{{ url_for('buy_now', product_id=product['id']) }}" class="btn btn-sm" style="flex:1; background-color:var(--accent); color:var(--white); border:none;" {{ 'disabled' if product['stock'] <= 0 }}>
+                                    Buy Now
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🌵</div>
+            <h3>No plants found</h3>
+            <p>Try a different search or browse all categories.</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">Browse All</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function applySort(value) {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', value);
+    window.location = url;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Manage Delivery Boys — Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <aside class="admin-sidebar">
+        <div class="admin-brand"><span>🌿</span> Admin Panel</div>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_products') }}" class="admin-link"><i class="fas fa-leaf"></i> Products</a>
+            <a href="{{ url_for('admin_orders') }}" class="admin-link"><i class="fas fa-box"></i> Orders</a>
+            <a href="{{ url_for('admin_delivery_boys') }}" class="admin-link active"><i class="fas fa-motorcycle"></i> Delivery Boys</a>
+            <a href="{{ url_for('admin_ads') }}" class="admin-link {{ 'active' if 'ads' in request.endpoint }}"><i class="fas fa-images"></i> Footer Ads</a>
+            {% if session.get('role') == 'super_admin' %}
+            <a href="{{ url_for('admin_sub_admins') }}" class="admin-link"><i class="fas fa-users-cog"></i> Sub Admins</a>
+            {% endif %}
+            <hr class="admin-nav-hr">
+            <a href="{{ url_for('home') }}" class="admin-link"><i class="fas fa-store"></i> View Store</a>
+            <a href="{{ url_for('logout') }}" class="admin-link admin-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1><i class="fas fa-motorcycle"></i> Delivery Boys ({{ delivery_boys|length }})</h1>
+        </div>
+
+        <div class="admin-form-card" style="margin-bottom: 2rem;">
+            <h3>Register Delivery Boy</h3>
+            <form method="POST" action="{{ url_for('admin_delivery_boys') }}">
+                <div class="form-row" style="display:flex; gap:1rem;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Username</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row" style="display:flex; gap:1rem;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Zone (e.g. North Side)</label>
+                        <input type="text" name="zone" class="form-control">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Register Delivery Boy</button>
+            </form>
+        </div>
+
+        <div class="admin-table-card">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Phone</th>
+                        <th>Zone</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for db in delivery_boys %}
+                <tr>
+                    <td>{{ db['id'] }}</td>
+                    <td><strong>{{ db['username'] }}</strong></td>
+                    <td>{{ db['phone'] }}</td>
+                    <td>{{ db['zone'] or '—' }}</td>
+                    <td>
+                        <span class="{{ 'text-success' if db['is_active'] else 'text-danger' }}">
+                            {{ 'Active' if db['is_active'] else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>{{ db['created_at'].strftime('%Y-%m-%d') if db['created_at'] else '—' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_delivery_boy', boy_id=db['id']) }}" onsubmit="return confirm('Are you sure you want to permanently delete this Delivery Boy?');">
+                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="empty-text">No delivery boys registered.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}
