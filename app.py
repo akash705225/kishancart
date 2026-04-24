@@ -397,13 +397,12 @@ def buy_now(product_id):
         return redirect(url_for("product_detail", product_id=product_id))
 
     qty = int(request.form.get("qty", 1))
-    cart = session.get("cart", {})
+    
+    # "Buy Now" ignores the previous cart and immediately checks out with just this item
+    cart = {}
     pid = str(product_id)
 
-    if pid in cart:
-        cart[pid]["qty"] += qty
-    else:
-        cart[pid] = {
+    cart[pid] = {
             "id": product["id"],
             "name": product["name"],
             "price": product["price"],
