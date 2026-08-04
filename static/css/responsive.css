@@ -107,10 +107,20 @@
         gap: 1rem;
     }
 
-    /* Ensure product image doesn't collapse horizontally if broken */
+    /* Ensure product image scales correctly with the aspect ratio */
+    .product-img-wrap {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect ratio square */
+        overflow: hidden;
+    }
     .product-img-wrap img {
-        height: 250px !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
         background-color: var(--bg-light); /* Fallback color for missing images */
     }
 
@@ -174,4 +184,21 @@
     .cart-remove { position: absolute; top: 10px; right: 10px; }
     .cart-actions { flex-direction: column; gap: 1rem; }
     .form-row { grid-template-columns: 1fr; gap: 1rem; }
+    
+    .product-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .detail-img-wrap {
+        min-height: 250px;
+    }
+    .detail-img-wrap img {
+        max-height: 350px;
+        width: 100%;
+        object-fit: contain;
+    }
+    .thumb {
+        width: 55px;
+        height: 55px;
+    }
 }

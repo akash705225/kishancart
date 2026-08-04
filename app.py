@@ -267,10 +267,12 @@ def product_detail(product_id):
         return redirect(url_for("shop"))
 
     # Get related products from same category
-    related = db.execute(
-        "SELECT * FROM products WHERE category_id = ? AND id != ? ORDER BY RAND() LIMIT 4",
-        (product["category_id"], product_id)
-    ).fetchall()
+    related = []
+    if product.get("category_id"):
+        related = db.execute(
+            "SELECT * FROM products WHERE category_id = ? AND id != ? ORDER BY RAND() LIMIT 4",
+            (product["category_id"], product_id)
+        ).fetchall()
     db.close()
     return render_template("product_detail.html", product=product, related=related)
 
@@ -436,13 +438,12 @@ def remove_from_cart(product_id):
 def update_cart():
     """Update quantity of items in cart."""
     cart = session.get("cart", {})
-    for pid in cart:
+    for pid in list(cart.keys()):
         new_qty = request.form.get(f"qty_{pid}", type=int)
-        if new_qty and new_qty > 0:
+        if new_qty is not None and new_qty > 0:
             cart[pid]["qty"] = min(new_qty, cart[pid]["stock"])
         elif new_qty == 0:
             del cart[pid]
-            break  # dict changed size, redirect handles the rest
     session["cart"] = cart
     flash("Cart updated.", "success")
     return redirect(url_for("cart"))
@@ -675,13 +676,20 @@ def profile():
 def admin_dashboard():
     """Admin dashboard with statistics."""
     db = get_db()
+    def get_val(query):
+        row = db.execute(query).fetchone()
+        if not row:
+            return 0
+        val = list(row.values())[0]
+        return val if val is not None else 0
+
     stats = {
-        "total_products": list(db.execute("SELECT COUNT(*) FROM products").fetchone().values())[0],
-        "total_users": list(db.execute("SELECT COUNT(*) FROM users WHERE is_admin = 0").fetchone().values())[0],
-        "total_orders": list(db.execute("SELECT COUNT(*) FROM orders").fetchone().values())[0],
-        "total_revenue": list(db.execute("SELECT COALESCE(SUM(total), 0) FROM orders WHERE status != 'Cancelled'").fetchone().values())[0],
-        "pending_orders": list(db.execute("SELECT COUNT(*) FROM orders WHERE status = 'Pending'").fetchone().values())[0],
-        "messages": list(db.execute("SELECT COUNT(*) FROM contact_messages").fetchone().values())[0],
+        "total_products": get_val("SELECT COUNT(*) FROM products"),
+        "total_users": get_val("SELECT COUNT(*) FROM users WHERE is_admin = 0"),
+        "total_orders": get_val("SELECT COUNT(*) FROM orders"),
+        "total_revenue": get_val("SELECT COALESCE(SUM(total), 0) FROM orders WHERE status != 'Cancelled'"),
+        "pending_orders": get_val("SELECT COUNT(*) FROM orders WHERE status = 'Pending'"),
+        "messages": get_val("SELECT COUNT(*) FROM contact_messages"),
     }
     recent_orders = db.execute(
         "SELECT o.*, u.username FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 5"
@@ -739,7 +747,6 @@ def admin_add_product():
                     elif k == "image2": image2_name = fname
                     elif k == "image3": image3_name = fname
 
-        import sqlite3
         try:
             db.execute("""
                 INSERT INTO products (custom_id, name, description, price, sale_price, weight, category_id, image1, image2, image3, stock, featured)
@@ -749,9 +756,9 @@ def admin_add_product():
             db.close()
             flash(f"Product '{name}' added successfully! 🌿", "success")
             return redirect(url_for("admin_products"))
-        except sqlite3.IntegrityError:
+        except Exception:
             db.close()
-            flash("Product ID/SKU must be unique.", "danger")
+            flash("Product ID/SKU must be unique or database error occurred.", "danger")
             return render_template("admin/add_product.html", categories=categories)
 
     db.close()
@@ -797,7 +804,6 @@ def admin_edit_product(product_id):
                     elif k == "image2": image2_name = fname
                     elif k == "image3": image3_name = fname
 
-        import sqlite3
         try:
             db.execute("""
                 UPDATE products SET custom_id=?, name=?, description=?, price=?, sale_price=?, weight=?,
@@ -807,9 +813,9 @@ def admin_edit_product(product_id):
             db.close()
             flash(f"Product '{name}' updated! ✅", "success")
             return redirect(url_for("admin_products"))
-        except sqlite3.IntegrityError:
+        except Exception:
             db.close()
-            flash("Product ID/SKU must be unique.", "danger")
+            flash("Product ID/SKU must be unique or database error occurred.", "danger")
             return render_template("admin/add_product.html", product=product, categories=categories, editing=True)
 
     db.close()
